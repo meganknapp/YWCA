@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
+    <title>YWCA map</title>
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css'
+        rel='stylesheet' />
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/mapbox-gl/0.53.1/mapbox-gl.css' rel='stylesheet' />
+    <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.0.0/mapbox-gl-geocoder.css' type='text/css' />
+    <link href='css/ywca-app.css' rel='stylesheet' />
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,900" rel="stylesheet">
+
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"> -->
+
+
+
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="https://www.ywca.org/"><img src="https://www.2ndvote.com/wp-content/uploads/2016/03/YWCA_logo_logotype-1.png" style='height: 50px;'></a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+          <a class="nav-item nav-link" href="#">About</a>
+          <a class="nav-item nav-link active" href="#">Map <span class="sr-only">(current)</span></a>
+          <a class="nav-item nav-link" href="#">Donate</a>
+          <a class="nav-item nav-link" href="#">Blog</a>
+        </div>
+      </div>
+    </nav>
+
+<!-- THE MAP -->
+
+    <div id='ywca-wrapper' class=''>
+
+        <div id='ywca-header' class='row no-gutters'>
+            <div id='headline-intro'>
+            </div>
+        </div>
+
+        <div id='ywca-app' class='row no-gutters'>
+            <div id='map-col' class='col-8'>
+                <div id='map'></div>
+            </div>
+
+<!-- THE RIGHT COLUMN -->
+
+            <div id='map-info-col' class='col-4'>
+                <div class='row info'>
+
+                    <div class='col-12'>
+                        <div class='assoc-title' style="padding-bottom:10px;"><img src='https://www.ywcaworks.org/themes/custom/ywca/images/mission.png' style='height: 110px;'></div>
+                        <div class='assoc-title'><p>YWCA USA is on a mission to eliminate racism, empower women, stand up for social justice, help families, and strengthen communities. We are one of the oldest and largest women’s organizations in the nation, serving over 2 million women, girls, and their families.</p></div>
+                    </div>
+
+                    <div class='col-12'>
+                      <h3>FIND YOUR YWCA</h3>
+                    </div>
+
+                    <div id='geocoder' class='geocoder'></div>
+
+                    <div class="col-12" ><p>OR</p></div>
+
+                    <div class="col-12">
+                        <div class="dropdown">
+                            <button class="btn btn-primary btn-orange dropdown-toggle" type="button" id="dropdownMenu1"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select your state</button>
+                            <div id="statesDropdown" class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                            </div>
+                        </div>
+                    </div>
+
+
+                      <br><br><br>
+
+
+                    <div class="col-12" class="overflow-auto">
+                        <p class="d-none d-md-block text-muted pb-2 mb-0">Click on a location to see more information</p>
+                        <ul id="posts_countable_list" class="listing list-unstyled list-filtered overflow-auto overflow-styled w-100 py-3 border-top border-bottom mb-0">
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <footer class="navbar-default navbar-orange navbar-fixed-bottom">
+          <div class="container-fluid">
+            <a class="navbar-brand" href="https://www.ywca.org/"><img src="http://ywcawpcw.org/wp-content/uploads/2017/09/YWCA_logo-WPCW-White-small.png" style='height: 40px;'></a>
+            <span>Home</span>
+            <span>About</span>
+            <span>Donate</span>
+            <span>Blog</span>
+            <span>Site Map</span>
+          </div>
+        </footer>
+
+    </div>
+
+    <!-- STATE DROPDOWN -->
+
+
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mapbox-gl/0.53.1/mapbox-gl.js'></script>
+    <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.0.0/mapbox-gl-geocoder.min.js'></script>
+    <script src="js/states-bounds-obj.js"></script>
+
+
+    <script>
+        var popup = new mapboxgl.Popup({
+            offset: 12
+        });
+
+        // mapbox access token (your token)
+        mapboxgl.accessToken =
+            'pk.eyJ1IjoibWVnYW5rbmFwcCIsImEiOiJjam52dTlwM3kwYnJ0M3FrYnNxdjBiM2ZtIn0.EywyQlyCHtPBme_0T5CBlw';
+
+        // map instance (your map style)
+        var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/meganknapp/ck1w7qo704jy81cropbwzuvjy',
+            center: [-95.6, 37.9],
+            zoom: 3.1,
+            // dragRotate: false,
+            // pitchWithRotate: false,
+            // hash: true
+        });
+
+        var geocoder = new MapboxGeocoder({
+          accessToken: mapboxgl.accessToken,
+          countries: 'us',
+          placeholder: 'Enter address to find a YWCA near you',
+          mapboxgl: mapboxgl
+        });
+
+        document.getElementById('geocoder').appendChild(geocoder.onAdd(map));
+
+        map.on('load', function () {
+
+            map.setMaxZoom(12);
+
+            //
+            map.addControl(new mapboxgl.NavigationControl(), 'top-left');
+
+            map.addControl(new mapboxgl.ScaleControl({
+                maxWidth: 80,
+                unit: 'imperial'
+            }));
+
+            // when a 'click' event occurs on features in the 'ywca-assoc' layer
+            // open a popup at location of click, with HTML from feature's properties
+            map.on('click', 'ywca-icon', function (e) {
+                // what is the e (event) parameter returning
+                console.log(e.features[0].properties);
+                // address: "1215 Church Street"
+                // assoc: "YWCA Evanston/North Shore"
+                // childrenServed: 8310
+                // city: "Evanston"
+                // congDist: 9
+                // emp: 85
+                // empVol: 532
+                // fedFunds: 117717
+                // founded: "'1931'"
+                // id: "IL04"
+                // lat: 42.0491323
+                // lon: -87.6891125
+                // oppZone: false
+                // program1: "Racial Justice and Civil Rights"
+                // program2: "Domestic Violence and Safety"
+                // program3: "Fitness and Athletics"
+                // program4: "Economic Advancement"
+                // program5: ""
+                // rev: 4300000
+                // state: "IL"
+                // totalDV: 9728
+                // totalEA: 192
+                // totalHousing: ""
+                // vol: 447
+                // website: "'https://www.kintera.org/site/c.ewK0LoO8LmK6F/b.7964321/k.BD08/Home.htm'"
+                // zip: 60201
+
+                // put assoc info somewhere else on the page
+                var html = '<h3>' + e.features[0].properties.assoc + '</h3>' + '<br>';
+                html += '<p>' + e.features[0].properties.address + '<br>';
+                html += e.features[0].properties.city + ', ' + e.features[0].properties.state + ' ';
+                html += e.features[0].properties.zip + '<br>';
+                html += '<a href="' + e.features[0].properties.website + '">' + e.features[0].properties
+                    .website + '</a></p>';
+                html += '<h5>Top 5 Programs</h5>';
+                html += '<ul>';
+                html += '<li>' + e.features[0].properties.program1 + '</li>';
+                html += '<li>' + e.features[0].properties.program2 + '</li>';
+                html += '<li>' + e.features[0].properties.program3 + '</li>';
+                html += '<li>' + e.features[0].properties.program4 + '</li>';
+                html += '<li>' + e.features[0].properties.program5 + '</li>';
+                html += '</ul>';
+                $('#posts_countable_list').html(html);
+            });
+
+            // change cursor to 'pointer' when mouse is over point
+            map.on('mousemove', 'ywca-assoc', function (e) {
+                map.getCanvas().style.cursor = 'pointer';
+                // popup
+                popup.setLngLat(e.lngLat)
+                    .setHTML('<h6>' + e.features[0].properties.assoc + '</h6>')
+                    .addTo(map);
+            });
+
+            // change it back to 'default' when mouse leaves point
+            map.on('mouseleave', 'ywca-assoc', function () {
+                map.getCanvas().style.cursor = '';
+                popup.remove();
+            });
+
+        });
+
+        // get state bounds data
+        var props = Object.values(bounds);
+
+        // function to build the drop-down
+        var buildDropdown = function () {
+            // sort by prop 'name'
+            props.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
+
+            var newHtml = '';
+
+            // loop through data for menu dropdown items
+            for (var i = 0; i < props.length; i++) {
+                newHtml += '<button data-abbr="' + props[i].abbr + '" class="dropdown-item" type="button">' + props[
+                        i].name +
+                    '</button>';
+            }
+
+            // select dropdown nd update html
+            $('#statesDropdown').html(newHtml);
+
+            // use jQuery to enable click event on drop-down items
+            $('.dropdown-item').click(function (e) {
+                // get click event (e) target
+                var abbr = e.currentTarget.attributes['data-abbr'].value;
+                var b = bounds[abbr].bbox;
+                var bbox = [
+                    [b[0], b[1]],
+                    [b[2], b[3]]
+                ];
+                map.fitBounds(bbox, {
+                    padding: {
+                        top: 10,
+                        bottom: 10,
+                        left: 10,
+                        right: 10
+                    }
+                });
+                console.log(bbox);
+
+                // use jQuery to un-highlight all drop-down items
+                $(".dropdown-item").removeClass("active");
+
+                // use jQuery to highlight the target (this) drop-down item
+                $(this).addClass("active");
+            });
+        };
+
+        // call the "buildDropdown" function
+        buildDropdown();
+    </script>
+</body>
+
+</html>
